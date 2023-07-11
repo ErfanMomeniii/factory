@@ -19,7 +19,6 @@ func NewFactory() *Factory {
 
 func (f *Factory) Model(t any) *Factory {
 	myType := reflect.TypeOf(t)
-
 	if myType.Kind() != reflect.Struct {
 		return nil
 	}
@@ -32,6 +31,7 @@ func (f *Factory) Model(t any) *Factory {
 func (f *Factory) Set(field string, value any) *Factory {
 	//TODO error handling for type of value
 	f.defines[field] = value
+
 	return f
 }
 
@@ -41,6 +41,7 @@ func (f *Factory) Generate(count int) []interface{} {
 		instance := generate(f)
 		answer = append(answer, instance)
 	}
+
 	return answer
 }
 
@@ -51,7 +52,7 @@ func generate(factory *Factory) interface{} {
 		if v, ok := factory.defines[reflect.TypeOf(factory.structure).Field(i).Name]; ok {
 			structField.Field(i).Set(reflect.ValueOf(v))
 		} else {
-			structField.Field(i).Set(reflect.ValueOf(generateRandomValue(structField.Field(i).Type())))
+			setRandomValue(structField.Field(i))
 		}
 	}
 
@@ -60,6 +61,7 @@ func generate(factory *Factory) interface{} {
 
 func generateRandomString(length int) string {
 	const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()"
+
 	result := make([]byte, length)
 	for i := 0; i < length; i++ {
 		randomIndex := rand.Intn(len(charset))
@@ -69,7 +71,7 @@ func generateRandomString(length int) string {
 	return string(result)
 }
 
-func generateRandomValue(t reflect.Type) any {
+func setRandomValue(t reflect.Value) {
 	sign := 1
 	lowBit := 0
 	if rand.Intn(1e1) == 1 {
@@ -77,40 +79,46 @@ func generateRandomValue(t reflect.Type) any {
 		sign = -1
 	}
 
-	switch t.String() {
+	switch t.Type().String() {
 	case "bool":
-		return rand.Intn(2) == 1
+		t.SetBool(rand.Intn(2) == 1)
 	case "string":
-		return generateRandomString(rand.Int() % 100)
+		t.SetString(generateRandomString(rand.Int() % 100))
 	case "int":
-		return rand.Int() * sign
+		t.SetInt(int64(rand.Int() * sign))
 	case "int8":
-		return rand.Intn(1e7) * sign
+		t.SetInt(int64(rand.Intn(1e7) * sign))
 	case "int16":
-		return rand.Intn(1e15) * sign
+		t.SetInt(int64(rand.Intn(1e15) * sign))
 	case "int32":
-		return rand.Int31() * int32(sign)
+		t.SetInt(int64(rand.Int31() * int32(sign)))
 	case "int64":
-		return rand.Int63() * int64(sign)
+		t.SetInt(rand.Int63() * int64(sign))
 	case "uint":
-		return uint64(rand.Int()*2 + lowBit)
+		t.SetUint(uint64(rand.Int()*2 + lowBit))
 	case "uint8":
-		return uint64(rand.Intn(1e8))
+		t.SetUint(uint64(rand.Intn(1e8)))
 	case "uint16":
-		return uint64(rand.Intn(1e16))
+		t.SetUint(uint64(rand.Intn(1e16)))
 	case "uint32":
-		return uint64(rand.Uint32())
+		t.SetUint(uint64(rand.Uint32()))
 	case "uint64":
-		return rand.Uint64()
+		t.SetUint(rand.Uint64())
 	case "float32":
-		return float64(rand.Float32())
+		t.SetFloat(float64(rand.Float32()))
 	case "float64":
-		return rand.Float64()
+		t.SetFloat(rand.Float64())
 	case "complex64":
-		return complex(rand.Float64(), rand.Float64())
+		t.SetComplex(complex(rand.Float64(), rand.Float64()))
 	case "complex128":
-		return complex(rand.Float64()*rand.Float64(), rand.Float64()*rand.Float64())
+		t.SetComplex(complex(rand.Float64()*rand.Float64(), rand.Float64()*rand.Float64()))
+	default:
+		if t.Kind() == reflect.Struct {
+			for i := 0; i < t.NumField(); i++ {
+				setRandomValue(t.Field(i))
+			}
+		}
 	}
-	// TODO extract struct before return
-	return nil
+
+	return
 }
