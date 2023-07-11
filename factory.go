@@ -10,10 +10,6 @@ type Factory struct {
 	defines   map[string]any
 }
 
-type Instance struct {
-	FactoryInstance interface{}
-}
-
 func NewFactory() *Factory {
 	return &Factory{
 		structure: make([]reflect.StructField, 0),
@@ -38,6 +34,7 @@ func (f *Factory) Set(field string, value any) *Factory {
 	f.defines[field] = value
 	return f
 }
+
 func (f *Factory) Generate(count int) []interface{} {
 	var answer []interface{}
 	for i := 0; i < count; i++ {
