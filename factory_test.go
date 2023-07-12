@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-type Op struct {
+type Info struct {
 	Name  string
 	Phone int
 }
@@ -14,12 +14,12 @@ type Op struct {
 func Test_model(t *testing.T) {
 	f := factory.NewFactory()
 
-	instances := f.Model(Op{}).
+	instances := f.Model(Info{}).
 		Set("Name", "Erfan").
 		Generate(2)
 
 	assert.Equal(t, len(instances), 2)
-	assert.IsType(t, instances[0], Op{})
-	assert.Equal(t, instances[0].(Op).Name, "Erfan")
-	assert.IsType(t, instances[1], Op{})
+	assert.IsType(t, instances[0], Info{})
+	assert.Equal(t, instances[0].(Info).Name, "Erfan")
+	assert.IsType(t, instances[1], Info{})
 }

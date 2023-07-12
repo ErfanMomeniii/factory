@@ -7,13 +7,13 @@ import (
 
 type Factory struct {
 	structure interface{}
-	defines   map[string]any
+	desired   map[string]any
 }
 
 func NewFactory() *Factory {
 	return &Factory{
 		structure: make([]reflect.StructField, 0),
-		defines:   make(map[string]any),
+		desired:   make(map[string]any),
 	}
 }
 
@@ -30,7 +30,7 @@ func (f *Factory) Model(t any) *Factory {
 
 func (f *Factory) Set(field string, value any) *Factory {
 	//TODO error handling for type of value
-	f.defines[field] = value
+	f.desired[field] = value
 
 	return f
 }
@@ -49,7 +49,7 @@ func generate(factory *Factory) interface{} {
 	structField := reflect.New(reflect.TypeOf(factory.structure)).Elem()
 
 	for i := 0; i < structField.NumField(); i++ {
-		if v, ok := factory.defines[reflect.TypeOf(factory.structure).Field(i).Name]; ok {
+		if v, ok := factory.desired[reflect.TypeOf(factory.structure).Field(i).Name]; ok {
 			structField.Field(i).Set(reflect.ValueOf(v))
 		} else {
 			setRandomValue(structField.Field(i))
