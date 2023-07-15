@@ -17,28 +17,31 @@ func NewFactory() *Factory {
 	}
 }
 
-func (f *Factory) Model(t any) *Factory {
+func (factory *Factory) Model(t any) *Factory {
 	myType := reflect.TypeOf(t)
 	if myType.Kind() != reflect.Struct {
 		return nil
 	}
 
-	f.structure = t
+	factory.structure = t
 
-	return f
+	return factory
 }
 
-func (f *Factory) Set(field string, value any) *Factory {
-	//TODO error handling for type of value
-	f.desired[field] = value
+func (factory *Factory) Set(field string, value any) *Factory {
+	if f, b := reflect.TypeOf(factory.structure).FieldByName(field); !b || reflect.TypeOf(value) != f.Type {
+		return factory
+	}
 
-	return f
+	factory.desired[field] = value
+
+	return factory
 }
 
-func (f *Factory) Generate(count int) []interface{} {
+func (factory *Factory) Generate(count int) []interface{} {
 	var answer []interface{}
 	for i := 0; i < count; i++ {
-		instance := generate(f)
+		instance := generate(factory)
 		answer = append(answer, instance)
 	}
 

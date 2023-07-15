@@ -22,4 +22,9 @@ func Test_model(t *testing.T) {
 	assert.IsType(t, instances[0], Info{})
 	assert.Equal(t, instances[0].(Info).Name, "Erfan")
 	assert.IsType(t, instances[1], Info{})
+
+	instances = f.Model(Info{}).
+		Set("Family", "Erfan").
+		Generate(1)
+	assert.Equal(t, len(instances), 1)
 }
