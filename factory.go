@@ -3,6 +3,7 @@ package factory
 import (
 	"math/rand"
 	"reflect"
+	"time"
 )
 
 type Factory struct {
@@ -63,6 +64,8 @@ func generate(factory *Factory) interface{} {
 }
 
 func generateRandomString(length int) string {
+	rand.Seed(time.Now().UnixNano())
+
 	const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()"
 
 	result := make([]byte, length)
