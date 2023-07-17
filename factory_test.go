@@ -1,9 +1,10 @@
 package factory_test
 
 import (
+	"testing"
+
 	"github.com/erfanmomeniii/factory"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 type Info struct {
